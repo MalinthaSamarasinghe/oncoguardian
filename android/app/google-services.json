@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "949326465131",
+    "project_id": "oncoguardian-d9811",
+    "storage_bucket": "oncoguardian-d9811.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:949326465131:android:ab1d4c03bed9cbec88c92e",
+        "android_client_info": {
+          "package_name": "com.app.oncoguardian"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmqJVPrjT0FekGrHdidAqfwgdPTXHQfoE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

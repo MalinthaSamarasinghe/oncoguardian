@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oncoguardian/injector.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:oncoguardian/firebase_options.dart';
 import 'package:oncoguardian/oncoguardian_app.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:oncoguardian/core/blocs/bloc_observer.dart';
@@ -19,7 +21,7 @@ void main() async {
 
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-      // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
       /// Initialize service locator
       await setupServiceLocator();
@@ -31,7 +33,9 @@ void main() async {
       Bloc.observer = OncoGuardianBlocObserver();
 
       HydratedBloc.storage = await HydratedStorage.build(
-        storageDirectory: kIsWeb ? HydratedStorageDirectory.web : HydratedStorageDirectory((await getTemporaryDirectory()).path),
+        storageDirectory: kIsWeb
+            ? HydratedStorageDirectory.web
+            : HydratedStorageDirectory((await getTemporaryDirectory()).path),
       );
 
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

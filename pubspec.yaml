@@ -12,6 +12,10 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
+  # Firebase & Backend
+  firebase_core: ^4.5.0
+  firebase_auth: ^6.2.0
+  cloud_firestore: ^6.1.3
   # Routing & Localization
   go_router: ^17.1.0
   # State Management & BLoC
