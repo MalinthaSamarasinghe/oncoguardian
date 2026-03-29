@@ -44,92 +44,118 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AuthInnerBackgroundContainer(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 31),
-          child: Form(
-            key: _formKey,
-            child: AutofillGroup(
-              child: Column(
-                children: [
-                  const SizedBox(height: 45),
-                  const AuthTextHeadLine(text: 'Sign In'),
-                  const SizedBox(height: 8),
-                  const AuthTextSubHeadLine(text: 'Hello, Welcome to the Oncoguardian!'),
-                  const SizedBox(height: 34),
-                  AuthTextField(
-                    label: 'Email',
-                    hint: 'Enter your email',
-                    controller: _emailController,
-                    focusNode: _emailFocusNode,
-                    isEnabled: true,
-                    keyboardType: TextInputType.emailAddress,
-                    autofillHints: const [AutofillHints.email],
-                    textInputAction: TextInputAction.next,
-                    onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-                    onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                    validator: _validateEmail,
-                    shouldShowError: _hasAttemptedSubmit,
-                  ),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    label: 'Password',
-                    hint: 'Enter your password',
-                    controller: _passwordController,
-                    focusNode: _passwordFocusNode,
-                    isEnabled: true,
-                    isObscureText: true,
-                    keyboardType: TextInputType.visiblePassword,
-                    autofillHints: const [AutofillHints.password],
-                    textInputAction: TextInputAction.done,
-                    onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-                    onFieldSubmitted: (_) => _submit(),
-                    validator: _validatePassword,
-                    shouldShowError: _hasAttemptedSubmit,
-                  ),
-                  const SizedBox(height: 17),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: AuthTextUnderLine(
-                      onPressed: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        context.push(AppRouter.forgotPassword);
-                      },
-                      text: 'Forgot Password?',
-                      textAlign: TextAlign.end,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 34),
-                  AuthButton(onPressed: _submit, isLoading: false, text: 'Sign In'),
-                  const SizedBox(height: 23),
-                  const AuthSignInDividerSection(),
-                  const SizedBox(height: 25),
-                  AuthSocialButtons(
-                    onPressedApple: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    },
-                    onPressedGoogle: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  AuthBottomSection(
-                    onPressed: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      context.go(AppRouter.createAccount);
-                    },
-                    startText: "Don't have an account?",
-                    lastText: 'Sign Up',
-                  ),
-                  const SizedBox(height: 24),
-                ],
+    return BlocListener<AuthenticationBloc, AuthenticationState>(
+      listener: (context, state) {
+        if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!, style: const TextStyle(color: Colors.white)),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+      child: AuthInnerBackgroundContainer(
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 31),
+            child: Form(
+              key: _formKey,
+              child: AutofillGroup(
+                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, state) {
+                    final isLoading = state.authenticationStatus == AuthenticationStatus.loading;
+                    return Column(
+                      children: [
+                        const SizedBox(height: 45),
+                        const AuthTextHeadLine(text: 'Sign In'),
+                        const SizedBox(height: 8),
+                        const AuthTextSubHeadLine(text: 'Hello, Welcome to the Oncoguardian!'),
+                        const SizedBox(height: 34),
+                        AuthTextField(
+                          label: 'Email',
+                          hint: 'Enter your email',
+                          controller: _emailController,
+                          focusNode: _emailFocusNode,
+                          isEnabled: !isLoading,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          textInputAction: TextInputAction.next,
+                          onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                          onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                          validator: _validateEmail,
+                          shouldShowError: _hasAttemptedSubmit,
+                        ),
+                        const SizedBox(height: 16),
+                        AuthTextField(
+                          label: 'Password',
+                          hint: 'Enter your password',
+                          controller: _passwordController,
+                          focusNode: _passwordFocusNode,
+                          isEnabled: !isLoading,
+                          isObscureText: true,
+                          keyboardType: TextInputType.visiblePassword,
+                          autofillHints: const [AutofillHints.password],
+                          textInputAction: TextInputAction.done,
+                          onTap: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                          onFieldSubmitted: (_) => _submit(),
+                          validator: _validatePassword,
+                          shouldShowError: _hasAttemptedSubmit,
+                        ),
+                        const SizedBox(height: 17),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: AuthTextUnderLine(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                    context.push(AppRouter.forgotPassword);
+                                  },
+                            text: 'Forgot Password?',
+                            textAlign: TextAlign.end,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 34),
+                        AuthButton(onPressed: isLoading ? null : _submit, isLoading: isLoading, text: 'Sign In'),
+                        const SizedBox(height: 23),
+                        const AuthSignInDividerSection(),
+                        const SizedBox(height: 25),
+                        AuthSocialButtons(
+                          onPressedApple: isLoading
+                              ? null
+                              : () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                },
+                          onPressedGoogle: isLoading
+                              ? null
+                              : () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                },
+                        ),
+                        const SizedBox(height: 24),
+                        AuthBottomSection(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                  context.go(AppRouter.createAccount);
+                                },
+                          startText: "Don't have an account?",
+                          lastText: 'Sign Up',
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -148,7 +174,12 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
 
-    context.read<AuthenticationBloc>().add(const UserLoggedInEvent(authenticationStatus: AuthenticationStatus.authenticated));
+    context.read<AuthenticationBloc>().add(
+      SignInEvent(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      ),
+    );
   }
 
   String? _validateEmail(String? value) {

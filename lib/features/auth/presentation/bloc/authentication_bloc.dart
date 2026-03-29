@@ -1,29 +1,110 @@
 import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:oncoguardian/core/blocs/event_transformer.dart';
 import 'package:oncoguardian/core/enums/authentication_status.dart';
+import 'package:oncoguardian/features/auth/data/services/firebase_auth_service.dart';
 
 part 'authentication_event.dart';
 
 part 'authentication_state.dart';
 
 class AuthenticationBloc extends HydratedBloc<AuthenticationEvent, AuthenticationState> {
-  AuthenticationBloc() : super(const AuthenticationState()) {
-    on<UserLoggedInEvent>(_userLoggedInEvent);
-    on<UserLoggedOutEvent>(_userLoggedOutEvent);
+  final FirebaseAuthService _firebaseAuthService;
+
+  AuthenticationBloc({FirebaseAuthService? firebaseAuthService}): _firebaseAuthService = firebaseAuthService ?? FirebaseAuthService(), super(const AuthenticationState()) {
+    on<CreateAccountEvent>(_createAccountEvent, transformer: Transformer.throttleDroppable());
+    on<SignInEvent>(_signInEvent, transformer: Transformer.throttleDroppable());
+    on<SignOutEvent>(_signOutEvent, transformer: Transformer.throttleDroppable());
   }
 
-  void _userLoggedInEvent(UserLoggedInEvent event, Emitter<AuthenticationState> emit) async {
-    emit(state.copyWith(
-      authenticationStatus: event.authenticationStatus,
-    ));
+  Future<void> _createAccountEvent(CreateAccountEvent event, Emitter<AuthenticationState> emit) async {
+    try {
+      emit(state.copyWith(authenticationStatus: AuthenticationStatus.loading));
+
+      final userCredential = await _firebaseAuthService.createUserWithEmailAndPassword(
+        email: event.email,
+        password: event.password,
+        fullName: event.fullName,
+      );
+
+      if (userCredential.user != null) {
+        emit(
+          state.copyWith(
+            authenticationStatus: AuthenticationStatus.authenticated,
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      final errorMessage = _firebaseAuthService.getAuthErrorMessage(e);
+      debugPrint('FirebaseAuthException: ${e.code} - $errorMessage');
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.unauthenticated,
+          errorMessage: errorMessage,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Exception in _createAccountEvent: $e');
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.unauthenticated,
+          errorMessage: 'An unexpected error occurred. Please try again.',
+        ),
+      );
+    }
   }
 
-  Future<void> _userLoggedOutEvent(UserLoggedOutEvent event, Emitter<AuthenticationState> emit) async {
-    emit(state.copyWith(
-      authenticationStatus: AuthenticationStatus.unauthenticated,
-      clearUserEntity: true,
-    ));
+  Future<void> _signInEvent(SignInEvent event, Emitter<AuthenticationState> emit) async {
+    try {
+      emit(state.copyWith(authenticationStatus: AuthenticationStatus.loading));
+
+      final userCredential = await _firebaseAuthService.signInWithEmailAndPassword(
+        email: event.email,
+        password: event.password,
+      );
+
+      if (userCredential.user != null) {
+        emit(
+          state.copyWith(
+            authenticationStatus: AuthenticationStatus.authenticated,
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      final errorMessage = _firebaseAuthService.getAuthErrorMessage(e);
+      debugPrint('FirebaseAuthException: ${e.code} - $errorMessage');
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.unauthenticated,
+          errorMessage: errorMessage,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Exception in _signInEvent: $e');
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.unauthenticated,
+          errorMessage: 'An unexpected error occurred. Please try again.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _signOutEvent(SignOutEvent event, Emitter<AuthenticationState> emit) async {
+    try {
+      await _firebaseAuthService.signOut();
+      emit(state.copyWith(authenticationStatus: AuthenticationStatus.unauthenticated));
+    } catch (e) {
+      debugPrint('Exception in _signOutEvent: $e');
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.unauthenticated,
+          errorMessage: 'An unexpected error occurred while signing out. Please try again.',
+        ),
+      );
+    }
   }
 
   @override

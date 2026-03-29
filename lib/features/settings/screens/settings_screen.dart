@@ -254,7 +254,7 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      context.read<AuthenticationBloc>().add(const UserLoggedOutEvent());
+                      context.read<AuthenticationBloc>().add(const SignOutEvent());
                     },
                     child: Container(
                       width: double.infinity,
