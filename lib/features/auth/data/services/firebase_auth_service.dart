@@ -82,6 +82,26 @@ class FirebaseAuthService {
     }
   }
 
+  /// Update user profile information
+  Future<void> updateUserProfile({String? displayName}) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw Exception('No user is currently signed in');
+      }
+
+      if (displayName != null && displayName.isNotEmpty) {
+        await user.updateDisplayName(displayName.trim());
+      }
+
+      await user.reload();
+      debugPrint('User profile updated successfully');
+    } catch (e) {
+      debugPrint('Exception in updateUserProfile: $e');
+      rethrow;
+    }
+  }
+
   /// Get Firebase Auth error message
   String getAuthErrorMessage(FirebaseAuthException exception) {
     switch (exception.code) {

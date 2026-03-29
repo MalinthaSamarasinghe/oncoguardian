@@ -1,6 +1,7 @@
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:oncoguardian/routes/app_router.dart';
 import 'package:oncoguardian/core/widgets/app_icon_button.dart';
 
@@ -31,6 +32,16 @@ class _BaseNavigationState extends State<BaseNavigation> {
     }
   }
 
+  String _getGreetingName() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user?.displayName != null && user!.displayName!.isNotEmpty) {
+      // Extract first name from display name
+      final parts = user.displayName!.split(' ');
+      return parts.first;
+    }
+    return 'User';
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -45,9 +56,9 @@ class _BaseNavigationState extends State<BaseNavigation> {
           body: widget.child,
           backgroundColor: const Color(0xFFFFFFFF),
           appBar: AppBar(
-            title: const Padding(
-              padding: EdgeInsets.only(top: 6),
-              child: Text('Hello Anushka'),
+            title: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text('Hello ${_getGreetingName()}'),
             ),
             actions: [
               const SizedBox(width: 14),

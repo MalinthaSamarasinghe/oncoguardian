@@ -17,6 +17,7 @@ class AuthenticationBloc extends HydratedBloc<AuthenticationEvent, Authenticatio
     on<CreateAccountEvent>(_createAccountEvent, transformer: Transformer.throttleDroppable());
     on<SignInEvent>(_signInEvent, transformer: Transformer.throttleDroppable());
     on<SignOutEvent>(_signOutEvent, transformer: Transformer.throttleDroppable());
+    on<UpdateProfileEvent>(_updateProfileEvent, transformer: Transformer.throttleDroppable());
   }
 
   Future<void> _createAccountEvent(CreateAccountEvent event, Emitter<AuthenticationState> emit) async {
@@ -102,6 +103,27 @@ class AuthenticationBloc extends HydratedBloc<AuthenticationEvent, Authenticatio
         state.copyWith(
           authenticationStatus: AuthenticationStatus.unauthenticated,
           errorMessage: 'An unexpected error occurred while signing out. Please try again.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _updateProfileEvent(UpdateProfileEvent event, Emitter<AuthenticationState> emit) async {
+    try {
+      await _firebaseAuthService.updateUserProfile(displayName: event.fullName);
+
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.authenticated,
+          errorMessage: null,
+        ),
+      );
+    } catch (e) {
+      debugPrint('Exception in _updateProfileEvent: $e');
+      emit(
+        state.copyWith(
+          authenticationStatus: AuthenticationStatus.authenticated,
+          errorMessage: 'Failed to update profile. Please try again.',
         ),
       );
     }

@@ -33,47 +33,53 @@ class _TipsScreenState extends State<TipsScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            GestureDetector(
-              onTap: () => setState(() => currentTab = 0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF000000), width: 1),
-                  borderRadius: BorderRadius.circular(20),
-                  color: currentTab == 0 ? Colors.blue[200] : null,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => currentTab = 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF000000), width: 1),
+                      borderRadius: BorderRadius.circular(20),
+                      color: currentTab == 0 ? Colors.blue[200] : null,
+                    ),
+                    child: Text('Daily Tips', style: Theme.of(context).textTheme.bodySmall),
+                  ),
                 ),
-                child: Text('Daily Tips', style: Theme.of(context).textTheme.bodySmall),
-              ),
-            ),
-            GestureDetector(
-              onTap: () => setState(() => currentTab = 1),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF000000), width: 1),
-                  borderRadius: BorderRadius.circular(20),
-                  color: currentTab == 1 ? Colors.blue[200] : null,
+                GestureDetector(
+                  onTap: () => setState(() => currentTab = 1),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF000000), width: 1),
+                      borderRadius: BorderRadius.circular(20),
+                      color: currentTab == 1 ? Colors.blue[200] : null,
+                    ),
+                    child: Text('Lifestyle Challenges', style: Theme.of(context).textTheme.bodySmall),
+                  ),
                 ),
-                child: Text('Lifestyle Challenges', style: Theme.of(context).textTheme.bodySmall),
-              ),
-            ),
-            GestureDetector(
-              onTap: () => setState(() => currentTab = 2),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF000000), width: 1),
-                  borderRadius: BorderRadius.circular(20),
-                  color: currentTab == 2 ? Colors.blue[200] : null,
+                GestureDetector(
+                  onTap: () => setState(() => currentTab = 2),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF000000), width: 1),
+                      borderRadius: BorderRadius.circular(20),
+                      color: currentTab == 2 ? Colors.blue[200] : null,
+                    ),
+                    child: Text('Awareness & Screening', style: Theme.of(context).textTheme.bodySmall),
+                  ),
                 ),
-                child: Text('Awareness & Screening', style: Theme.of(context).textTheme.bodySmall),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
         const SizedBox(height: 12),
         Expanded(

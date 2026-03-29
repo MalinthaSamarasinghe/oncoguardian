@@ -63,7 +63,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         if (state.errorMessage != null && state.errorMessage!.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage!, style: const TextStyle(color: Colors.white)),
+              content: Text(state.errorMessage!, style: const TextStyle(color: Color(0xFFFFFFFF))),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 3),
             ),

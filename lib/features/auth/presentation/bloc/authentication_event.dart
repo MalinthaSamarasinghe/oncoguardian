@@ -35,3 +35,12 @@ class SignOutEvent extends AuthenticationEvent {
   @override
   List<Object?> get props => [];
 }
+
+class UpdateProfileEvent extends AuthenticationEvent {
+  final String fullName;
+
+  const UpdateProfileEvent({required this.fullName});
+
+  @override
+  List<Object?> get props => [fullName];
+}
