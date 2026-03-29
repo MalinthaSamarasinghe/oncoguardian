@@ -53,7 +53,16 @@ class FoodScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text('Fruits & Vegetables', style: Theme.of(context).textTheme.titleMedium),
+                            Expanded(
+                              child: Text(
+                                'Fruits & Vegetables',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.start,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                               decoration: BoxDecoration(
@@ -152,7 +161,16 @@ class FoodScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text('Fruits & Vegetables', style: Theme.of(context).textTheme.titleMedium),
+                            Expanded(
+                              child: Text(
+                                'Fruits & Vegetables',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.start,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                               decoration: BoxDecoration(
@@ -251,7 +269,16 @@ class FoodScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text('Fruits & Vegetables', style: Theme.of(context).textTheme.titleMedium),
+                            Expanded(
+                              child: Text(
+                                'Fruits & Vegetables',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.start,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                               decoration: BoxDecoration(
