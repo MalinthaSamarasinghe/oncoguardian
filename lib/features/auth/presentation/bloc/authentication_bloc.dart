@@ -13,7 +13,9 @@ part 'authentication_state.dart';
 class AuthenticationBloc extends HydratedBloc<AuthenticationEvent, AuthenticationState> {
   final FirebaseAuthService _firebaseAuthService;
 
-  AuthenticationBloc({FirebaseAuthService? firebaseAuthService}): _firebaseAuthService = firebaseAuthService ?? FirebaseAuthService(), super(const AuthenticationState()) {
+  AuthenticationBloc({FirebaseAuthService? firebaseAuthService})
+      : _firebaseAuthService = firebaseAuthService ?? FirebaseAuthService(),
+        super(AuthenticationState(authenticationStatus: (firebaseAuthService ?? FirebaseAuthService()).isAuthenticated ? AuthenticationStatus.unauthenticated : AuthenticationStatus.unauthenticated)) {
     on<CreateAccountEvent>(_createAccountEvent, transformer: Transformer.throttleDroppable());
     on<SignInEvent>(_signInEvent, transformer: Transformer.throttleDroppable());
     on<SignOutEvent>(_signOutEvent, transformer: Transformer.throttleDroppable());

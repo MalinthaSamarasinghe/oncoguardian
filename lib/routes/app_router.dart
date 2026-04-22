@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oncoguardian/routes/router_stream.dart';
 import 'package:oncoguardian/routes/router_observer.dart';
-import 'package:oncoguardian/features/food/food_screen.dart';
-import 'package:oncoguardian/features/tips/tips_screen.dart';
-import 'package:oncoguardian/features/home/home_screen.dart';
 import 'package:oncoguardian/core/widgets/app_icon_button.dart';
 import 'package:oncoguardian/core/widgets/base_navigation.dart';
+import 'package:oncoguardian/features/food/screen/food_screen.dart';
+import 'package:oncoguardian/features/tips/screen/tips_screen.dart';
+import 'package:oncoguardian/features/home/screen/home_screen.dart';
 import 'package:oncoguardian/core/enums/authentication_status.dart';
 import 'package:oncoguardian/features/onboarding/onboarding_screen.dart';
 import 'package:oncoguardian/features/risk/screens/risk_result_screen.dart';
@@ -178,15 +178,6 @@ class AppRouter {
               child: const RiskAssessmentScreen(),
             );
           },
-          routes: [
-            GoRoute(
-              path: riskResults,
-              name: 'results',
-              builder: (BuildContext context, GoRouterState state) {
-                return const RiskResultScreen();
-              },
-            ),
-          ],
         ),
         GoRoute(
           path: food,
@@ -215,6 +206,13 @@ class AppRouter {
   /// Creates the authenticated routes that are outside the main shell
   static List<RouteBase> _createAuthenticatedRoutes() {
     return [
+      GoRoute(
+        path: riskResults,
+        name: 'results',
+        builder: (BuildContext context, GoRouterState state) {
+          return const RiskResultScreen();
+        },
+      ),
       GoRoute(
         path: settings,
         name: 'settings',

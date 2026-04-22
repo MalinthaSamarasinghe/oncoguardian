@@ -1,9 +1,11 @@
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oncoguardian/injector.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:oncoguardian/routes/app_router.dart';
 import 'package:oncoguardian/core/widgets/app_icon_button.dart';
+import 'package:oncoguardian/core/services/firebase_firestore_service.dart';
 
 class BaseNavigation extends StatefulWidget {
   final Widget child;
@@ -118,25 +120,67 @@ class _BaseNavigationState extends State<BaseNavigation> {
   ];
 
   /// Handle navigation item tap
-  void _onItemTapped(BuildContext context, int index) {
+  void _onItemTapped(BuildContext context, int index) async {
     switch (index) {
       case 0:
         // Home
         context.go(AppRouter.home);
         break;
       case 1:
-        // Search
+        // Risk Assessment
         context.go(AppRouter.risk);
         break;
       case 2:
-        // Music Library
-        context.go(AppRouter.food);
+        // Food - Check if prediction exists
+        _navigateOrShowAlert(context, 'Food Recommendations', AppRouter.food);
         break;
       case 3:
-        // News Feed
-        context.go(AppRouter.tips);
+        // Tips - Check if prediction exists
+        _navigateOrShowAlert(context, 'Health Tips', AppRouter.tips);
         break;
     }
+  }
+
+  /// Navigate to Food screen or show alert if no prediction data
+  void _navigateOrShowAlert(BuildContext context, String screenName, String screenPath) async {
+    try {
+      final firestoreService = getIt<FirebaseFirestoreService>();
+      final hasPrediction = await firestoreService.hasPrediction();
+
+      if (hasPrediction) {
+        context.go(screenPath);
+      } else {
+        _showNoPredictionAlert(context, screenName);
+      }
+    } catch (e) {
+      _showNoPredictionAlert(context, screenName);
+    }
+  }
+
+  /// Show alert when prediction data is not available
+  void _showNoPredictionAlert(BuildContext context, String screenName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Complete Risk Assessment First'),
+          content: Text('Please complete your health profile assessment in the Risk section to access $screenName.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(AppRouter.risk);
+              },
+              child: const Text('Go to Risk Assessment'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

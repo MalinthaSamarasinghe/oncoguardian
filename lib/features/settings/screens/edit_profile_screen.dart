@@ -1,13 +1,15 @@
-import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:oncoguardian/core/widgets/app_icon_button.dart';
 import 'package:oncoguardian/core/enums/authentication_status.dart';
+import 'package:oncoguardian/core/extensions/context_extensions.dart';
 import 'package:oncoguardian/features/settings/widgets/edit_profile_text_field.dart';
+import 'package:oncoguardian/features/settings/widgets/settings_content_widgets.dart';
 import 'package:oncoguardian/features/auth/presentation/bloc/authentication_bloc.dart';
 
+/// TODO: Write separate BLoC for profile editing to handle more complex logic and state management
+/// This will help keep the authentication BLoC focused on authentication-related logic and make the codebase more maintainable as the app grows.
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -56,46 +58,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _handleSaveChanges(BuildContext context) {
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    // Dispatch UpdateProfileEvent to BLoC
-    context.read<AuthenticationBloc>().add(
-      UpdateProfileEvent(fullName: _nameController.text.trim()),
-    );
-  }
-
-  String? _validateName(String? value) {
-    final parts = (value ?? '').trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
-
-    if (parts.isEmpty) {
-      return 'Name is required';
-    }
-
-    if (parts.length < 2) {
-      return 'Enter first and last name';
-    }
-
-    return null;
-  }
-
-  String? _validateEmail(String? value) {
-    final email = value?.trim() ?? '';
-    if (email.isEmpty) {
-      return 'Email is required';
-    }
-
-    if (!email.contains('@') || !email.contains('.')) {
-      return 'Enter a valid email address';
-    }
-
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
@@ -128,31 +90,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           bottom: false,
           child: Scaffold(
             backgroundColor: const Color(0xFFFFFFFF),
-            appBar: AppBar(
-              centerTitle: false,
-              title: const Text('Edit Profile'),
-              titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 20, height: 0.8),
-              leadingWidth: 83,
-              titleSpacing: 2,
-              leading: Center(
-                child: AppIconButton(
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    GoRouter.of(context).pop();
-                  },
-                  backgroundColor: const Color(0xFFF3F4F6),
-                  iconWidget: SvgPicture.asset(
-                    'assets/svg/back.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ),
+            appBar: SettingsAppBar(
+              onPressed: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                GoRouter.of(context).pop();
+              },
+              title: 'Edit Profile',
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -248,5 +192,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
     );
+  }
+
+  void _handleSaveChanges(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    if (!_formKey.currentState!.validate()) {
+      context.showErrorSnackBar('Please Enter Valid Full Name');
+      return;
+    }
+
+    // Dispatch UpdateProfileEvent to BLoC
+    context.read<AuthenticationBloc>().add(
+      UpdateProfileEvent(fullName: _nameController.text.trim()),
+    );
+  }
+
+  String? _validateName(String? value) {
+    final parts = (value ?? '').trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+
+    if (parts.isEmpty) {
+      return 'Name is required';
+    }
+
+    if (parts.length < 2) {
+      return 'Enter first and last name';
+    }
+
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    final email = value?.trim() ?? '';
+    if (email.isEmpty) {
+      return 'Email is required';
+    }
+
+    if (!email.contains('@') || !email.contains('.')) {
+      return 'Enter a valid email address';
+    }
+
+    return null;
   }
 }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oncoguardian/injector.dart';
+import 'package:oncoguardian/routes/app_router.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:oncoguardian/features/risk/widgets/risk_text_field.dart';
+import 'package:oncoguardian/core/services/firebase_firestore_service.dart';
 
 class RiskAssessmentScreen extends StatefulWidget {
   const RiskAssessmentScreen({super.key});
@@ -657,7 +661,7 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     // Create data dictionary matching the ML model input format
     final int? age = int.tryParse(ageController.text);
     final double? height = double.tryParse(heightController.text);
@@ -687,11 +691,27 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
       'Calcium_Intake': calciumIntake.toInt(),
     };
 
-    // TODO: Send to backend API for prediction
-    // final result = await apiClient.predictCancerRisk(patientData);
-    print('Patient Data for Prediction: $patientData');
+    try {
+      // Show loading indicator
+      EasyLoading.show(status: 'Processing your health data...');
+      print('Submitting patient data: $patientData');
 
-    // For now, navigate to results screen
-    context.push('/risk/results', extra: patientData);
+      // Send patient data to backend API and save prediction to Firestore
+      final firestoreService = getIt<FirebaseFirestoreService>();
+      final predictionResponse = await firestoreService.savePrediction(patientData);
+
+      EasyLoading.dismiss();
+
+      if (predictionResponse != null && predictionResponse.success) {
+        // Navigate to results screen with the prediction response
+        context.push(AppRouter.riskResults, extra: predictionResponse);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to get prediction. Please try again.')));
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      print('Error submitting form: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
   }
 }

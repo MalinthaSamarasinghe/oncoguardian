@@ -1,8 +1,8 @@
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oncoguardian/core/widgets/app_icon_button.dart';
 import 'package:oncoguardian/core/extensions/context_extensions.dart';
+import 'package:oncoguardian/features/settings/widgets/settings_content_widgets.dart';
 import 'package:oncoguardian/features/settings/widgets/account_settings_text_field.dart';
 
 class AccountSettingsScreen extends StatefulWidget {
@@ -57,23 +57,13 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         bottom: false,
         child: Scaffold(
           backgroundColor: const Color(0xFFFFFFFF),
-          appBar: AppBar(
-            centerTitle: false,
-            title: const Text('Account Settings'),
-            titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 20, height: 0.8),
-            leadingWidth: 83,
-            titleSpacing: 2,
-            leading: Center(
-              child: AppIconButton(
-                onPressed: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  GoRouter.of(context).pop();
-                },
-                backgroundColor: const Color(0xFFF3F4F6),
-                iconWidget: SvgPicture.asset('assets/svg/back.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-              ),
-            ),
+          appBar: SettingsAppBar(
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              GoRouter.of(context).pop();
+            },
+            title: 'Account Settings',
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
