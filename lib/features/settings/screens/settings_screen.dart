@@ -2,6 +2,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:oncoguardian/core/extensions/context_extensions.dart';
 import 'package:oncoguardian/features/settings/widgets/settings_content_widgets.dart';
 import 'package:oncoguardian/features/auth/presentation/bloc/authentication_bloc.dart';
 
@@ -60,10 +61,12 @@ class SettingsScreen extends StatelessWidget {
                     onPressedFirst: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      context.showErrorSnackBar('Under Development');
                     },
                     onPressedSecond: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      context.showErrorSnackBar('Under Development');
                     },
                     textFirst: 'Privacy Policy',
                     textSecond: 'Help & Support',

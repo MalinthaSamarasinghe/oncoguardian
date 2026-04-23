@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:oncoguardian/routes/app_router.dart';
 import 'package:oncoguardian/core/widgets/app_icon_button.dart';
+import 'package:oncoguardian/core/extensions/context_extensions.dart';
 import 'package:oncoguardian/core/services/firebase_firestore_service.dart';
 
 class BaseNavigation extends StatefulWidget {
@@ -85,6 +86,7 @@ class _BaseNavigationState extends State<BaseNavigation> {
                 onPressed: () {
                   FocusManager.instance.primaryFocus?.unfocus();
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  context.showErrorSnackBar('Under Development');
                 },
                 backgroundColor: const Color(0xFFF3F4F6),
                 iconWidget: SvgPicture.asset('assets/svg/notification.svg', colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn), width: 20, height: 20),
