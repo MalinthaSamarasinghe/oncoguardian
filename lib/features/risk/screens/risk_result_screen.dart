@@ -1,9 +1,27 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oncoguardian/routes/app_router.dart';
+import 'package:oncoguardian/features/risk/models/prediction_response_model.dart';
 
 class RiskResultScreen extends StatelessWidget {
-  const RiskResultScreen({super.key});
+  final PredictionResponse predictionResponse;
+
+  const RiskResultScreen({
+    super.key,
+    required this.predictionResponse,
+  });
+
+  String _formatDate(String? timestamp) {
+    if (timestamp == null || timestamp.isEmpty) {
+      return 'Unknown Date';
+    }
+    try {
+      return DateFormat('MMMM d, yyyy').format(DateTime.parse(timestamp));
+    } catch (e) {
+      return timestamp;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +69,12 @@ class RiskResultScreen extends StatelessWidget {
                       children: [
                         const SizedBox(height: 32),
                         Text(
-                          '30%',
+                          '${((predictionResponse.prediction?.confidence ?? 0) * 100).toStringAsFixed(0)}%',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 14),
                         Text(
-                          'Cancer Risk Level',
+                          '${predictionResponse.prediction?.predictedCancerType ?? 'Cancer'} Risk - ${predictionResponse.prediction?.riskLevel ?? 'UNKNOWN'}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 32),
@@ -78,7 +96,10 @@ class RiskResultScreen extends StatelessWidget {
                                 style: Theme.of(context).textTheme.labelMedium,
                               ),
                               const SizedBox(height: 12),
-                              Text('Assessment Date: January 26, 2026', style: Theme.of(context).textTheme.bodyMedium),
+                              Text(
+                                'Assessment Date: ${_formatDate(predictionResponse.timestamp)}',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
                             ],
                           ),
                         ),
@@ -94,36 +115,136 @@ class RiskResultScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Key Contributing', style: Theme.of(context).textTheme.titleMedium),
+                              Text('Cancer Type Probabilities', style: Theme.of(context).textTheme.titleMedium),
                               const SizedBox(height: 16),
-                              Text.rich(
-                                TextSpan(
-                                  text: 'Factors Moderate Risk Factors\n',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  children: [
+                              ...?predictionResponse.prediction?.probabilities?.entries.map((entry) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Text.rich(
                                     TextSpan(
-                                      text: '• Some lifestyle and health factors may influence your risk profile',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                                      text: '${entry.key}: ',
+                                      style: Theme.of(context).textTheme.labelMedium,
+                                      children: [
+                                        TextSpan(
+                                          text: '${(entry.value * 100).toStringAsFixed(1)}%',
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text.rich(
-                                TextSpan(
-                                  text: 'Improvement Opportunity\n',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  children: [
-                                    TextSpan(
-                                      text: '• Lifestyle modifications could help reduce your risk',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              }),
                             ],
                           ),
                         ),
+                        if (predictionResponse.recommendations != null) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey[400],
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Lifestyle Tips', style: Theme.of(context).textTheme.titleMedium),
+                                const SizedBox(height: 16),
+                                ...?predictionResponse.recommendations?.lifestyleTips?.map((tip) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      '• $tip',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey[400],
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Recommended Foods', style: Theme.of(context).textTheme.titleMedium),
+                                const SizedBox(height: 16),
+                                ...?predictionResponse.recommendations?.recommendedFoods?.map((food) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      food,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey[400],
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Foods to Avoid', style: Theme.of(context).textTheme.titleMedium),
+                                const SizedBox(height: 16),
+                                ...?predictionResponse.recommendations?.foodsToAvoid?.map((food) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      food,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          if ((predictionResponse.recommendations?.supplements?.isNotEmpty ?? false)) ...[
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.grey[400],
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Recommended Supplements', style: Theme.of(context).textTheme.titleMedium),
+                                  const SizedBox(height: 16),
+                                  ...?predictionResponse.recommendations?.supplements?.map((supplement) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: Text(
+                                        '• $supplement',
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
                         const SizedBox(height: 16),
                         SizedBox(
                           width: 160,

@@ -14,6 +14,7 @@ import 'package:oncoguardian/features/risk/screens/risk_result_screen.dart';
 import 'package:oncoguardian/features/settings/screens/settings_screen.dart';
 import 'package:oncoguardian/features/risk/screens/risk_assessment_screen.dart';
 import 'package:oncoguardian/features/settings/screens/edit_profile_screen.dart';
+import 'package:oncoguardian/features/risk/models/prediction_response_model.dart';
 import 'package:oncoguardian/features/settings/screens/account_settings_screen.dart';
 import 'package:oncoguardian/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:oncoguardian/features/auth/presentation/bloc/authentication_bloc.dart';
@@ -210,7 +211,11 @@ class AppRouter {
         path: riskResults,
         name: 'results',
         builder: (BuildContext context, GoRouterState state) {
-          return const RiskResultScreen();
+          final predictionResponse = state.extra as PredictionResponse?;
+          if (predictionResponse == null) {
+            return const NotFoundScreen(title: 'No prediction data available');
+          }
+          return RiskResultScreen(predictionResponse: predictionResponse);
         },
       ),
       GoRoute(
@@ -276,50 +281,66 @@ class AppRouter {
 
 /// The Not Found Screen
 class NotFoundScreen extends StatelessWidget {
-  final String uri;
+  final String? uri;
+  final String? title;
 
-  const NotFoundScreen({super.key, required this.uri});
+  const NotFoundScreen({super.key, this.uri, this.title});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
-      appBar: AppBar(
-        centerTitle: false,
-        title: const Text('Page Not Found'),
-        titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 25, height: 1.41),
-        leadingWidth: 83,
-        titleSpacing: 2,
-        leading: !GoRouter.of(context).canPop()
-            ? null
-            : Center(
-                child: AppIconButton(
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    GoRouter.of(context).pop();
-                  },
-                  backgroundColor: const Color(0xFFF3F4F6),
-                  iconWidget: SvgPicture.asset('assets/svg/back.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-                ),
-              ),
-      ),
+      appBar: uri != null
+          ? AppBar(
+              centerTitle: false,
+              title: const Text('Page Not Found'),
+              titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 25, height: 1.41),
+              leadingWidth: 83,
+              titleSpacing: 2,
+              leading: !GoRouter.of(context).canPop()
+                  ? null
+                  : Center(
+                      child: AppIconButton(
+                        onPressed: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          GoRouter.of(context).pop();
+                        },
+                        backgroundColor: const Color(0xFFF3F4F6),
+                        iconWidget: SvgPicture.asset('assets/svg/back.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
+                      ),
+                    ),
+            )
+          : null,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('404 - Page Not Found'),
-            const SizedBox(height: 16),
-            Text('Requested URI: $uri'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => context.go(AppRouter.home),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF242424),
-                foregroundColor: const Color(0xFFFFFFFF),
+            if (uri != null) ...[
+              const Text('404 - Page Not Found'),
+              const SizedBox(height: 16),
+              Text('Requested URI: $uri'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go(AppRouter.home),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF242424),
+                  foregroundColor: const Color(0xFFFFFFFF),
+                ),
+                child: const Text('Go Back to Home'),
               ),
-              child: const Text('Go Back to Home'),
-            ),
+            ] else ...[
+              Text(title ?? 'The page you are looking for does not exist.'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.pushReplacement(AppRouter.risk),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF242424),
+                  foregroundColor: const Color(0xFFFFFFFF),
+                ),
+                child: const Text('Check Your Risk Assessment'),
+              ),
+            ],
           ],
         ),
       ),
