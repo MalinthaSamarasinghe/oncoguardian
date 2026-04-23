@@ -16,6 +16,7 @@ class RiskAssessmentScreen extends StatefulWidget {
 class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
   int currentStep = 0;
   final _formKey = GlobalKey<FormState>();
+  late ScrollController _scrollController;
 
   // Personal Information
   TextEditingController ageController = TextEditingController();
@@ -40,6 +41,23 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
   double dietSaltedProcessed = 5.0; // 0-10
   double fruitVegIntake = 5.0; // 0-10
   double calciumIntake = 7.0; // 0-10
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _goToStep(int step) {
+    setState(() => currentStep = step);
+    _scrollController.jumpTo(0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +96,7 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
+                controller: _scrollController,
                 child: currentStep == 0
                     ? _buildStep1() // Personal & Genetic Information
                     : currentStep == 1
@@ -597,7 +616,7 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
           SizedBox(
             width: 90,
             child: ElevatedButton(
-              onPressed: () => setState(() => currentStep--),
+              onPressed: () => _goToStep(currentStep - 1),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF000000),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -624,7 +643,7 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
                 if (isLastStep) {
                   _submitForm();
                 } else {
-                  setState(() => currentStep++);
+                  _goToStep(currentStep + 1);
                 }
               }
             },
