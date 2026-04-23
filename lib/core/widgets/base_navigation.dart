@@ -172,8 +172,10 @@ class _BaseNavigationState extends State<BaseNavigation> {
   void _showNoPredictionAlert(BuildContext context, String screenName) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: const Color(0xFFFFFFFF),
           title: const Text('Complete Risk Assessment First'),
           content: Text('Please complete your health profile assessment in the Risk section to access $screenName.'),
           actions: [
