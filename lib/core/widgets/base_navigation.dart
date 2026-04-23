@@ -1,7 +1,6 @@
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oncoguardian/injector.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:oncoguardian/routes/app_router.dart';
 import 'package:oncoguardian/core/widgets/app_icon_button.dart';
@@ -19,6 +18,24 @@ class BaseNavigation extends StatefulWidget {
 class _BaseNavigationState extends State<BaseNavigation> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
+  bool? _hasPrediction;
+  late final FirebaseFirestoreService _firestoreService;
+
+  @override
+  void initState() {
+    super.initState();
+    _firestoreService = FirebaseFirestoreService();
+    // Listen to prediction stream for real-time updates
+    _firestoreService.getPredictionStream().listen((prediction) {
+      setState(() => _hasPrediction = prediction != null);
+    });
+  }
+
+  @override
+  void dispose() {
+    _firestoreService.getPredictionStream().drain(); // Stop listening to the stream when widget is disposed
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -142,17 +159,11 @@ class _BaseNavigationState extends State<BaseNavigation> {
   }
 
   /// Navigate to Food screen or show alert if no prediction data
-  void _navigateOrShowAlert(BuildContext context, String screenName, String screenPath) async {
-    try {
-      final firestoreService = getIt<FirebaseFirestoreService>();
-      final hasPrediction = await firestoreService.hasPrediction();
-
-      if (hasPrediction) {
-        context.go(screenPath);
-      } else {
-        _showNoPredictionAlert(context, screenName);
-      }
-    } catch (e) {
+  void _navigateOrShowAlert(BuildContext context, String screenName, String screenPath) {
+    // Use cached prediction status from stream (instant, no async delay)
+    if (_hasPrediction == true) {
+      context.go(screenPath);
+    } else {
       _showNoPredictionAlert(context, screenName);
     }
   }
