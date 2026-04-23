@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oncoguardian/injector.dart';
 import 'package:oncoguardian/routes/app_router.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:oncoguardian/features/risk/widgets/risk_text_field.dart';
@@ -79,14 +78,11 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
-                child: IndexedStack(
-                  index: currentStep,
-                  children: [
-                    _buildStep1(), // Personal & Genetic Information
-                    _buildStep2(), // Lifestyle & Behavior
-                    _buildStep3(), // Diet & Nutrition
-                  ],
-                ),
+                child: currentStep == 0
+                    ? _buildStep1() // Personal & Genetic Information
+                    : currentStep == 1
+                        ? _buildStep2() // Lifestyle & Behavior
+                        : _buildStep3(), // Diet & Nutrition
               ),
             ),
           ),
@@ -697,8 +693,7 @@ class _RiskAssessmentScreenState extends State<RiskAssessmentScreen> {
       print('Submitting patient data: $patientData');
 
       // Send patient data to backend API and save prediction to Firestore
-      final firestoreService = getIt<FirebaseFirestoreService>();
-      final predictionResponse = await firestoreService.savePrediction(patientData);
+      final predictionResponse = await FirebaseFirestoreService().savePrediction(patientData);
 
       EasyLoading.dismiss();
 

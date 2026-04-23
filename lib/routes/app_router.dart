@@ -40,11 +40,11 @@ class AppRouter {
   // Authenticated Routes within Main Shell
   static const String home = '/home';
   static const String risk = '/risk';
-  static const String riskResults = '/results';
   static const String food = '/food';
   static const String tips = '/tips';
 
   // Authenticated Routes outside Main Shell
+  static const String riskResults = '/results';
   static const String settings = '/settings';
   static const String editProfile = '/edit-profile';
   static const String accountSettings = '/account-settings';

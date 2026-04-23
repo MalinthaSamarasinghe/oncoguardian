@@ -4,15 +4,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oncoguardian/features/risk/models/prediction_response_model.dart';
 
 class FirebaseFirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Dio _dio = Dio();
+  final FirebaseAuth _firebaseAuth;
+  final FirebaseFirestore _firestore;
+  final Dio _dio;
 
-  static const String _predictionsCollection = 'predictions';
+  FirebaseFirestoreService({
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+    Dio? dio,
+  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _dio = dio ?? Dio();
+
   static const String _backendUrl = 'https://api-kzk4353dja-uc.a.run.app/predict';
+  static const String _predictionsCollection = 'predictions';
 
   /// Get current user ID
-  String? get currentUserId => _auth.currentUser?.uid;
+  String? get currentUserId => _firebaseAuth.currentUser?.uid;
 
   /// Send patient data to backend API and save prediction to Firestore
   Future<PredictionResponse?> savePrediction(Map<String, dynamic> patientData) async {
