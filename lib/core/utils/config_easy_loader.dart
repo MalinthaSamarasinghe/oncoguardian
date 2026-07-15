@@ -17,7 +17,7 @@ class ConfigEasyLoader {
       ..userInteractions = false
       ..dismissOnTap = false
       ..textStyle = const TextStyle(
-        color: Color(0xFF000000),
+        color: Color(0xFFffffff),
         fontWeight: FontWeight.w400,
         fontStyle: FontStyle.normal,
         fontSize: 12,
